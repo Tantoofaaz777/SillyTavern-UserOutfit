@@ -25,6 +25,8 @@ const defaultSettings = {
 let patchState = {
     active: false,
     snapshot: null,
+    patchedDescription: '',
+    personaKey: '',
     restoreTimer: null,
 };
 
@@ -128,21 +130,20 @@ function formatOutfitBlock(outfit = getOutfit()) {
 function snapshotPersona() {
     return {
         persona_description: String(power_user.persona_description || ''),
-        persona_description_position: power_user.persona_description_position,
-        persona_description_depth: power_user.persona_description_depth,
-        persona_description_role: power_user.persona_description_role,
     };
 }
 
-function restorePersonaSnapshot(snapshot) {
-    if (!snapshot) {
+function restorePersonaDescriptionIfUnchanged() {
+    if (!patchState.snapshot) {
         return;
     }
 
-    power_user.persona_description = snapshot.persona_description;
-    power_user.persona_description_position = snapshot.persona_description_position;
-    power_user.persona_description_depth = snapshot.persona_description_depth;
-    power_user.persona_description_role = snapshot.persona_description_role;
+    if (getPersonaKey() !== patchState.personaKey || power_user.persona_description !== patchState.patchedDescription) {
+        console.debug('User Outfit: Skipped persona outfit restore because persona state changed during generation');
+        return;
+    }
+
+    power_user.persona_description = patchState.snapshot.persona_description;
 }
 
 function applyPersonaPatch(reason) {
@@ -172,6 +173,8 @@ function applyPersonaPatch(reason) {
 
     patchState.active = true;
     patchState.snapshot = snapshot;
+    patchState.patchedDescription = finalDescription;
+    patchState.personaKey = getPersonaKey();
     power_user.persona_description = finalDescription;
 
     if (patchState.restoreTimer) {
@@ -188,10 +191,12 @@ function restorePersonaPatch(reason) {
     }
 
     try {
-        restorePersonaSnapshot(patchState.snapshot);
+        restorePersonaDescriptionIfUnchanged();
     } finally {
         patchState.active = false;
         patchState.snapshot = null;
+        patchState.patchedDescription = '';
+        patchState.personaKey = '';
         if (patchState.restoreTimer) {
             window.clearTimeout(patchState.restoreTimer);
             patchState.restoreTimer = null;
