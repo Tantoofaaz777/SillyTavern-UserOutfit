@@ -1,6 +1,7 @@
 import {
     event_types,
     eventSource,
+    is_send_press,
     name1,
     saveSettingsDebounced,
 } from '../../../../script.js';
@@ -26,6 +27,7 @@ let patchState = {
     snapshot: null,
     patchedDescription: '',
     personaKey: '',
+    abortWatcher: null,
 };
 
 function getSettings() {
@@ -144,6 +146,28 @@ function restorePersonaDescriptionIfUnchanged() {
     power_user.persona_description = patchState.snapshot.persona_description;
 }
 
+function stopAbortWatcher() {
+    if (patchState.abortWatcher) {
+        window.clearInterval(patchState.abortWatcher);
+        patchState.abortWatcher = null;
+    }
+}
+
+function startAbortWatcher() {
+    stopAbortWatcher();
+
+    patchState.abortWatcher = window.setInterval(() => {
+        if (!patchState.active) {
+            stopAbortWatcher();
+            return;
+        }
+
+        if (!is_send_press) {
+            restorePersonaPatch('generation unblocked');
+        }
+    }, 500);
+}
+
 function applyPersonaPatch(reason) {
     if (patchState.active || !getSettings().enabled) {
         return;
@@ -174,6 +198,7 @@ function applyPersonaPatch(reason) {
     patchState.patchedDescription = finalDescription;
     patchState.personaKey = getPersonaKey();
     power_user.persona_description = finalDescription;
+    startAbortWatcher();
 
     console.debug(`User Outfit: Applied persona outfit patch (${reason})`);
 }
@@ -186,6 +211,7 @@ function restorePersonaPatch(reason) {
     try {
         restorePersonaDescriptionIfUnchanged();
     } finally {
+        stopAbortWatcher();
         patchState.active = false;
         patchState.snapshot = null;
         patchState.patchedDescription = '';
