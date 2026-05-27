@@ -40,6 +40,8 @@ let dragState = {
     baseTop: 0,
 };
 
+let initialized = false;
+
 function getSettings() {
     if (!extension_settings.userOutfit) {
         extension_settings.userOutfit = structuredClone(defaultSettings);
@@ -74,6 +76,10 @@ function getPersonaName() {
     return power_user.personas?.[user_avatar] || name1 || 'The user';
 }
 
+function createEmptyOutfit() {
+    return Object.fromEntries(OUTFIT_FIELDS.map(field => [field.key, '']));
+}
+
 function normalizeOutfit(value) {
     if (typeof value === 'string') {
         return {
@@ -85,14 +91,20 @@ function normalizeOutfit(value) {
     }
 
     if (value && typeof value === 'object') {
+        const outfit = createEmptyOutfit();
+
         for (const field of OUTFIT_FIELDS) {
-            value[field.key] = String(value[field.key] || '');
+            outfit[field.key] = String(value[field.key] || '');
         }
 
-        return value;
+        return outfit;
     }
 
-    return Object.fromEntries(OUTFIT_FIELDS.map(field => [field.key, '']));
+    return createEmptyOutfit();
+}
+
+function isNormalizedOutfit(value, outfit) {
+    return value && typeof value === 'object' && OUTFIT_FIELDS.every(field => value[field.key] === outfit[field.key]);
 }
 
 function getOutfit() {
@@ -101,7 +113,7 @@ function getOutfit() {
     const rawOutfit = settings.outfits[key];
     const outfit = normalizeOutfit(rawOutfit);
 
-    if (rawOutfit !== undefined && rawOutfit !== outfit) {
+    if (rawOutfit !== undefined && !isNormalizedOutfit(rawOutfit, outfit)) {
         settings.outfits[key] = outfit;
         saveSettingsDebounced();
     }
@@ -508,7 +520,10 @@ function createUi() {
     }
     $('#user_outfit_clear').on('click', () => {
         clearOutfit();
-        $('#user_outfit_top').trigger('focus');
+
+        if (!isCompactViewport()) {
+            $('#user_outfit_top').trigger('focus');
+        }
     });
 
     applySavedButtonPosition();
@@ -519,6 +534,11 @@ function onPersonaChanged() {
 }
 
 export function init() {
+    if (initialized) {
+        return;
+    }
+
+    initialized = true;
     getSettings();
     createUi();
     syncPanel();
