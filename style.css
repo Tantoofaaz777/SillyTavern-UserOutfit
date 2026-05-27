@@ -8,12 +8,20 @@
     display: grid;
     place-items: center;
     border: 1px solid var(--SmartThemeBorderColor);
-    border-radius: 8px;
+    border-radius: 50%;
     background: var(--SmartThemeBlurTintColor);
     color: var(--SmartThemeBodyColor);
     box-shadow: 0 8px 22px rgb(0 0 0 / 28%);
     cursor: pointer;
     backdrop-filter: blur(calc(var(--SmartThemeBlurStrength) * 1px));
+}
+
+.user_outfit_icon {
+    width: 24px;
+    height: 24px;
+    background: currentColor;
+    mask: url("./assets/t-shirt.svg") center / contain no-repeat;
+    -webkit-mask: url("./assets/t-shirt.svg") center / contain no-repeat;
 }
 
 #user_outfit_button:hover,

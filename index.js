@@ -260,7 +260,7 @@ function createUi() {
 
     const button = $(`
         <button id="user_outfit_button" type="button" aria-label="User outfit" title="Add user outfit">
-            <i class="fa-solid fa-shirt"></i>
+            <span class="user_outfit_icon" aria-hidden="true"></span>
         </button>
     `);
 
