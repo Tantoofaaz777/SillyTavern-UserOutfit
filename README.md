@@ -15,6 +15,7 @@ Restart or reload SillyTavern after installing.
 ## How It Works
 
 - Click the floating shirt button.
+- Drag the shirt button if you want to move it somewhere else; the position is saved.
 - Fill in any outfit fields for the active persona:
   - Top
   - Bottom

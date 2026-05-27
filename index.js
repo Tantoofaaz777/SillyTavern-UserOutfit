@@ -19,6 +19,7 @@ const OUTFIT_FIELDS = [
 
 const defaultSettings = {
     outfits: {},
+    triggerPos: null,
 };
 
 let patchState = {
@@ -27,6 +28,16 @@ let patchState = {
     patchedDescription: '',
     personaKey: '',
     abortWatcher: null,
+};
+
+let dragState = {
+    dragging: false,
+    movedEnough: false,
+    suppressNextClick: false,
+    startX: 0,
+    startY: 0,
+    baseLeft: 0,
+    baseTop: 0,
 };
 
 function getSettings() {
@@ -45,6 +56,10 @@ function getSettings() {
     }
 
     return extension_settings.userOutfit;
+}
+
+function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
 }
 
 function getPersonaKey() {
@@ -236,6 +251,159 @@ function syncPanel() {
     updateButtonState();
 }
 
+function placePanelNearButton() {
+    const panel = document.getElementById('user_outfit_panel');
+    const button = document.getElementById('user_outfit_button');
+
+    if (!panel || !button || !panel.classList.contains('user_outfit_open')) {
+        return;
+    }
+
+    const wasHidden = getComputedStyle(panel).display === 'none';
+    if (wasHidden) {
+        panel.style.visibility = 'hidden';
+        panel.style.display = 'flex';
+    }
+
+    const gap = 8;
+    const buttonRect = button.getBoundingClientRect();
+    const panelWidth = panel.offsetWidth || 320;
+    const panelHeight = panel.offsetHeight || 220;
+    let left = buttonRect.right + gap;
+
+    if (left + panelWidth > window.innerWidth - 4) {
+        left = buttonRect.left - panelWidth - gap;
+    }
+
+    let top = buttonRect.top;
+    left = clamp(left, 4, Math.max(4, window.innerWidth - panelWidth - 4));
+    top = clamp(top, 4, Math.max(4, window.innerHeight - panelHeight - 4));
+
+    panel.style.left = `${left}px`;
+    panel.style.top = `${top}px`;
+    panel.style.right = 'auto';
+    panel.style.bottom = 'auto';
+
+    if (wasHidden) {
+        panel.style.visibility = '';
+        panel.style.display = '';
+    }
+}
+
+function clampButtonToViewport(savePosition = false) {
+    const button = document.getElementById('user_outfit_button');
+    if (!button) {
+        return;
+    }
+
+    const rect = button.getBoundingClientRect();
+    const left = clamp(rect.left, 0, Math.max(0, window.innerWidth - button.offsetWidth));
+    const top = clamp(rect.top, 0, Math.max(0, window.innerHeight - button.offsetHeight));
+
+    if (left !== rect.left || top !== rect.top || savePosition) {
+        button.style.left = `${left}px`;
+        button.style.top = `${top}px`;
+        button.style.right = 'auto';
+        button.style.bottom = 'auto';
+
+        if (savePosition) {
+            const settings = getSettings();
+            settings.triggerPos = { left, top };
+            saveSettingsDebounced();
+        }
+    }
+
+    placePanelNearButton();
+}
+
+function applySavedButtonPosition() {
+    const button = document.getElementById('user_outfit_button');
+    const savedPos = getSettings().triggerPos;
+
+    if (!button || !savedPos || !Number.isFinite(savedPos.left) || !Number.isFinite(savedPos.top)) {
+        return;
+    }
+
+    button.style.left = `${savedPos.left}px`;
+    button.style.top = `${savedPos.top}px`;
+    button.style.right = 'auto';
+    button.style.bottom = 'auto';
+    clampButtonToViewport(true);
+}
+
+function onButtonPointerDown(event) {
+    if (event.button !== 0 && event.pointerType !== 'touch') {
+        return;
+    }
+
+    const button = event.currentTarget;
+    const rect = button.getBoundingClientRect();
+    dragState = {
+        dragging: true,
+        movedEnough: false,
+        suppressNextClick: false,
+        startX: event.clientX,
+        startY: event.clientY,
+        baseLeft: rect.left,
+        baseTop: rect.top,
+    };
+
+    button.style.touchAction = 'none';
+    button.setPointerCapture?.(event.pointerId);
+}
+
+function onButtonPointerMove(event) {
+    if (!dragState.dragging) {
+        return;
+    }
+
+    const button = document.getElementById('user_outfit_button');
+    if (!button) {
+        return;
+    }
+
+    const deltaX = event.clientX - dragState.startX;
+    const deltaY = event.clientY - dragState.startY;
+
+    if (!dragState.movedEnough && (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4)) {
+        dragState.movedEnough = true;
+    }
+
+    const left = clamp(dragState.baseLeft + deltaX, 0, Math.max(0, window.innerWidth - button.offsetWidth));
+    const top = clamp(dragState.baseTop + deltaY, 0, Math.max(0, window.innerHeight - button.offsetHeight));
+
+    button.style.left = `${left}px`;
+    button.style.top = `${top}px`;
+    button.style.right = 'auto';
+    button.style.bottom = 'auto';
+    placePanelNearButton();
+}
+
+function onButtonPointerEnd(event) {
+    if (!dragState.dragging) {
+        return;
+    }
+
+    const button = document.getElementById('user_outfit_button');
+    dragState.dragging = false;
+
+    if (button) {
+        button.releasePointerCapture?.(event.pointerId);
+        button.style.touchAction = '';
+
+        if (dragState.movedEnough) {
+            const rect = button.getBoundingClientRect();
+            const settings = getSettings();
+            settings.triggerPos = { left: rect.left, top: rect.top };
+            saveSettingsDebounced();
+            dragState.suppressNextClick = true;
+            window.setTimeout(() => {
+                dragState.suppressNextClick = false;
+            }, 250);
+        }
+    }
+}
+
 function togglePanel(force) {
     const panel = $('#user_outfit_panel');
     const shouldShow = typeof force === 'boolean' ? force : !panel.hasClass('user_outfit_open');
@@ -244,6 +412,7 @@ function togglePanel(force) {
 
     if (shouldShow) {
         syncPanel();
+        placePanelNearButton();
         $('#user_outfit_top').trigger('focus');
     }
 }
@@ -296,7 +465,20 @@ function createUi() {
 
     $('body').append(button, panel);
 
-    button.on('click', () => togglePanel());
+    button[0].addEventListener('pointerdown', onButtonPointerDown);
+    window.addEventListener('pointermove', onButtonPointerMove);
+    window.addEventListener('pointerup', onButtonPointerEnd);
+    window.addEventListener('pointercancel', onButtonPointerEnd);
+    window.addEventListener('resize', () => clampButtonToViewport(Boolean(getSettings().triggerPos)));
+    button.on('click', (event) => {
+        if (dragState.suppressNextClick) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            return;
+        }
+
+        togglePanel();
+    });
     $('#user_outfit_close').on('click', () => togglePanel(false));
     for (const field of OUTFIT_FIELDS) {
         $(`#user_outfit_${field.key}`).on('input', function () {
@@ -307,6 +489,8 @@ function createUi() {
         clearOutfit();
         $('#user_outfit_top').trigger('focus');
     });
+
+    applySavedButtonPosition();
 }
 
 function onPersonaChanged() {

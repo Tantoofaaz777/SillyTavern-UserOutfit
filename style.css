@@ -13,6 +13,8 @@
     color: var(--SmartThemeBodyColor);
     box-shadow: 0 8px 22px rgb(0 0 0 / 28%);
     cursor: pointer;
+    touch-action: none;
+    user-select: none;
     backdrop-filter: blur(calc(var(--SmartThemeBlurStrength) * 1px));
 }
 
@@ -94,8 +96,8 @@
 
 @media screen and (max-width: 600px) {
     #user_outfit_button {
-        right: auto;
-        left: calc(100dvw - 56px - env(safe-area-inset-right, 0px));
+        right: 18px;
+        left: auto;
         bottom: calc(var(--bottomFormBlockSize, 44px) + 12px + env(safe-area-inset-bottom, 0px));
     }
 
@@ -114,9 +116,17 @@
     }
 }
 
+@media screen and (max-width: 1000px) {
+    #user_outfit_button {
+        position: absolute;
+        left: 0.25em;
+        right: auto;
+        bottom: 0.125em;
+    }
+}
+
 @media screen and (max-width: 480px) {
     #user_outfit_button {
-        left: calc(100dvw - 56px - env(safe-area-inset-right, 0px));
         bottom: calc(var(--bottomFormBlockSize, 44px) + 12px + env(safe-area-inset-bottom, 0px));
     }
 
