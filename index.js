@@ -1,7 +1,7 @@
 import {
     event_types,
     eventSource,
-    is_send_press,
+    isGenerating,
     name1,
     saveSettingsDebounced,
 } from '../../../../script.js';
@@ -162,7 +162,7 @@ function startAbortWatcher() {
             return;
         }
 
-        if (!is_send_press) {
+        if (!isGenerating()) {
             restorePersonaPatch('generation unblocked');
         }
     }, 500);
