@@ -150,6 +150,11 @@ function applyPersonaPatch(reason) {
         return;
     }
 
+    if (power_user.persona_description_position === persona_description_positions.NONE) {
+        console.debug(`User Outfit: Skipped persona outfit patch because persona injection is disabled (${reason})`);
+        return;
+    }
+
     const outfitBlock = formatOutfitBlock();
     if (!outfitBlock) {
         return;
@@ -168,7 +173,6 @@ function applyPersonaPatch(reason) {
     patchState.active = true;
     patchState.snapshot = snapshot;
     power_user.persona_description = finalDescription;
-    power_user.persona_description_position = persona_description_positions.IN_PROMPT;
 
     if (patchState.restoreTimer) {
         window.clearTimeout(patchState.restoreTimer);
