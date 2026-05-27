@@ -232,7 +232,7 @@ function syncPanel() {
     for (const field of OUTFIT_FIELDS) {
         $(`#user_outfit_${field.key}`).val(outfit[field.key] || '');
     }
-    $('#user_outfit_title').text(`${getPersonaName()} Outfit`);
+    $('#user_outfit_title').text(`${getPersonaName()}'s Outfit`);
     updateButtonState();
 }
 
