@@ -109,3 +109,18 @@
         flex-direction: column;
     }
 }
+
+@media screen and (max-width: 480px) {
+    #user_outfit_button {
+        right: max(12px, env(safe-area-inset-right));
+        bottom: max(12px, env(safe-area-inset-bottom));
+    }
+
+    #user_outfit_panel {
+        right: max(12px, env(safe-area-inset-right));
+        bottom: calc(max(12px, env(safe-area-inset-bottom)) + 56px);
+        width: calc(100vw - 24px - env(safe-area-inset-left) - env(safe-area-inset-right));
+        max-height: calc(100vh - 88px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        overflow-y: auto;
+    }
+}
