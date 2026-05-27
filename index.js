@@ -62,6 +62,10 @@ function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
 }
 
+function isCompactViewport() {
+    return window.matchMedia('(max-width: 1000px), (pointer: coarse)').matches;
+}
+
 function getPersonaKey() {
     return user_avatar || DEFAULT_PERSONA_KEY;
 }
@@ -265,17 +269,34 @@ function placePanelNearButton() {
         panel.style.display = 'flex';
     }
 
-    const gap = 8;
+    const gap = isCompactViewport() ? 12 : 8;
     const buttonRect = button.getBoundingClientRect();
+    panel.classList.toggle('user_outfit_compact', isCompactViewport());
+
+    if (isCompactViewport()) {
+        panel.style.width = `${Math.min(340, window.innerWidth - 16)}px`;
+        panel.style.maxHeight = `${Math.max(180, Math.min(window.innerHeight * 0.58, window.innerHeight - 96))}px`;
+    } else {
+        panel.style.width = '';
+        panel.style.maxHeight = '';
+    }
+
     const panelWidth = panel.offsetWidth || 320;
     const panelHeight = panel.offsetHeight || 220;
     let left = buttonRect.right + gap;
+    let top = buttonRect.top;
 
-    if (left + panelWidth > window.innerWidth - 4) {
+    if (isCompactViewport()) {
+        left = buttonRect.left + (buttonRect.width / 2) - (panelWidth / 2);
+        top = buttonRect.top - panelHeight - gap;
+
+        if (top < 4) {
+            top = buttonRect.bottom + gap;
+        }
+    } else if (left + panelWidth > window.innerWidth - 4) {
         left = buttonRect.left - panelWidth - gap;
     }
 
-    let top = buttonRect.top;
     left = clamp(left, 4, Math.max(4, window.innerWidth - panelWidth - 4));
     top = clamp(top, 4, Math.max(4, window.innerHeight - panelHeight - 4));
 
@@ -413,7 +434,10 @@ function togglePanel(force) {
     if (shouldShow) {
         syncPanel();
         placePanelNearButton();
-        $('#user_outfit_top').trigger('focus');
+
+        if (!isCompactViewport()) {
+            $('#user_outfit_top').trigger('focus');
+        }
     }
 }
 
