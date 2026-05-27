@@ -9,7 +9,6 @@ import { persona_description_positions, power_user } from '../../../power-user.j
 import { user_avatar } from '../../../personas.js';
 
 const DEFAULT_PERSONA_KEY = '__default__';
-const RESTORE_TIMEOUT = 30_000;
 const OUTFIT_FIELDS = [
     { key: 'top', label: 'Top' },
     { key: 'bottom', label: 'Bottom' },
@@ -27,7 +26,6 @@ let patchState = {
     snapshot: null,
     patchedDescription: '',
     personaKey: '',
-    restoreTimer: null,
 };
 
 function getSettings() {
@@ -177,11 +175,6 @@ function applyPersonaPatch(reason) {
     patchState.personaKey = getPersonaKey();
     power_user.persona_description = finalDescription;
 
-    if (patchState.restoreTimer) {
-        window.clearTimeout(patchState.restoreTimer);
-    }
-
-    patchState.restoreTimer = window.setTimeout(() => restorePersonaPatch('timeout'), RESTORE_TIMEOUT);
     console.debug(`User Outfit: Applied persona outfit patch (${reason})`);
 }
 
@@ -197,10 +190,6 @@ function restorePersonaPatch(reason) {
         patchState.snapshot = null;
         patchState.patchedDescription = '';
         patchState.personaKey = '';
-        if (patchState.restoreTimer) {
-            window.clearTimeout(patchState.restoreTimer);
-            patchState.restoreTimer = null;
-        }
     }
 
     console.debug(`User Outfit: Restored persona outfit patch (${reason})`);
