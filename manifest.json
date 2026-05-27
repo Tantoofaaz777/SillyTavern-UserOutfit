@@ -1,0 +1,14 @@
+{
+    "display_name": "User Outfit",
+    "loading_order": 50,
+    "requires": [],
+    "optional": [],
+    "js": "index.js",
+    "css": "style.css",
+    "author": "Lili + Codex",
+    "version": "1.0.0",
+    "homePage": "https://github.com/Tantoofaaz777/SillyTavern-UserOutfit",
+    "hooks": {
+        "activate": "init"
+    }
+}
