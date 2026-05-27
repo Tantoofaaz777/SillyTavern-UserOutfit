@@ -20,7 +20,6 @@ Restart or reload SillyTavern after installing.
   - Bottom
   - Footwear
   - Accessories
-- Leave "Inject into persona" enabled.
 - When SillyTavern generates a reply, the extension appends only the non-empty fields to the end of the runtime persona description.
 
 Outfits are saved per user persona avatar, so switching personas switches the saved outfit too.

@@ -18,7 +18,6 @@ const OUTFIT_FIELDS = [
 ];
 
 const defaultSettings = {
-    enabled: true,
     outfits: {},
 };
 
@@ -169,7 +168,7 @@ function startAbortWatcher() {
 }
 
 function applyPersonaPatch(reason) {
-    if (patchState.active || !getSettings().enabled) {
+    if (patchState.active) {
         return;
     }
 
@@ -223,21 +222,17 @@ function restorePersonaPatch(reason) {
 
 function updateButtonState() {
     const outfitHasValue = hasOutfit();
-    const enabled = Boolean(getSettings().enabled);
     $('#user_outfit_button')
         .toggleClass('user_outfit_has_value', outfitHasValue)
-        .toggleClass('user_outfit_disabled', !enabled)
         .attr('title', outfitHasValue ? 'Edit user outfit' : 'Add user outfit');
 }
 
 function syncPanel() {
-    const settings = getSettings();
     const outfit = getOutfit();
-    $('#user_outfit_enabled').prop('checked', settings.enabled);
     for (const field of OUTFIT_FIELDS) {
         $(`#user_outfit_${field.key}`).val(outfit[field.key] || '');
     }
-    $('#user_outfit_persona_name').text(getPersonaName());
+    $('#user_outfit_title').text(`${getPersonaName()} Outfit`);
     updateButtonState();
 }
 
@@ -267,10 +262,7 @@ function createUi() {
     const panel = $(`
         <div id="user_outfit_panel" aria-live="polite">
             <div class="user_outfit_header">
-                <div>
-                    <div class="user_outfit_title">User Outfit</div>
-                    <div id="user_outfit_persona_name" class="user_outfit_persona"></div>
-                </div>
+                <div id="user_outfit_title" class="user_outfit_title"></div>
                 <button id="user_outfit_close" type="button" class="menu_button menu_button_icon" title="Close">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -294,10 +286,6 @@ function createUi() {
                 </label>
             </div>
             <div class="user_outfit_controls">
-                <label class="checkbox_label" for="user_outfit_enabled">
-                    <input id="user_outfit_enabled" type="checkbox" />
-                    <span>Inject into persona</span>
-                </label>
                 <button id="user_outfit_clear" type="button" class="menu_button menu_button_icon" title="Clear outfit">
                     <i class="fa-solid fa-eraser"></i>
                     <span>Clear</span>
@@ -315,12 +303,6 @@ function createUi() {
             setOutfitField(field.key, $(this).val());
         });
     }
-    $('#user_outfit_enabled').on('input', function () {
-        const settings = getSettings();
-        settings.enabled = Boolean($(this).prop('checked'));
-        saveSettingsDebounced();
-        updateButtonState();
-    });
     $('#user_outfit_clear').on('click', () => {
         clearOutfit();
         $('#user_outfit_top').trigger('focus');

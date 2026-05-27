@@ -29,10 +29,6 @@
     filter: brightness(1.18);
 }
 
-#user_outfit_button.user_outfit_disabled {
-    opacity: 0.55;
-}
-
 #user_outfit_panel {
     position: fixed;
     right: 72px;
@@ -73,17 +69,19 @@
 .user_outfit_controls {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 10px;
+}
+
+.user_outfit_header {
+    justify-content: space-between;
+}
+
+.user_outfit_controls {
+    justify-content: flex-end;
 }
 
 .user_outfit_title {
     font-weight: 700;
-}
-
-.user_outfit_persona {
-    font-size: 0.85em;
-    opacity: 0.78;
     word-break: break-word;
 }
 
