@@ -47,6 +47,20 @@
     display: flex;
 }
 
+.user_outfit_fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.user_outfit_fields label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.9em;
+    font-weight: 700;
+}
+
 .user_outfit_header,
 .user_outfit_controls {
     display: flex;
@@ -65,10 +79,11 @@
     word-break: break-word;
 }
 
-#user_outfit_text {
+.user_outfit_field {
     width: 100%;
-    min-height: 108px;
+    min-height: 48px;
     resize: vertical;
+    font-weight: 400;
 }
 
 @media screen and (max-width: 600px) {
@@ -80,5 +95,10 @@
     #user_outfit_panel {
         right: 12px;
         bottom: 132px;
+    }
+
+    .user_outfit_controls {
+        align-items: stretch;
+        flex-direction: column;
     }
 }
