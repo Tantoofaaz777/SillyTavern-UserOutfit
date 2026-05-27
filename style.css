@@ -94,12 +94,14 @@
 
 @media screen and (max-width: 600px) {
     #user_outfit_button {
-        right: 12px;
+        right: auto;
+        left: calc(100dvw - 56px - env(safe-area-inset-right, 0px));
         bottom: calc(var(--bottomFormBlockSize, 44px) + 12px + env(safe-area-inset-bottom, 0px));
     }
 
     #user_outfit_panel {
-        right: 12px;
+        right: auto;
+        left: 12px;
         bottom: calc(var(--bottomFormBlockSize, 44px) + 68px + env(safe-area-inset-bottom, 0px));
         width: calc(100vw - 24px);
         max-height: calc(100dvh - var(--topBarBlockSize, 40px) - var(--bottomFormBlockSize, 44px) - 92px);
@@ -114,13 +116,13 @@
 
 @media screen and (max-width: 480px) {
     #user_outfit_button {
-        right: max(12px, env(safe-area-inset-right, 0px));
+        left: calc(100dvw - 56px - env(safe-area-inset-right, 0px));
         bottom: calc(var(--bottomFormBlockSize, 44px) + 12px + env(safe-area-inset-bottom, 0px));
     }
 
     #user_outfit_panel {
-        right: max(12px, env(safe-area-inset-right, 0px));
-        width: calc(100vw - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+        left: max(12px, env(safe-area-inset-left, 0px));
+        width: calc(100dvw - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
         max-height: calc(100dvh - var(--topBarBlockSize, 40px) - var(--bottomFormBlockSize, 44px) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 92px);
     }
 }
