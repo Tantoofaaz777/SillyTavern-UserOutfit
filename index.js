@@ -286,15 +286,12 @@ function placePanelNearButton() {
     let left = buttonRect.right + gap;
     let top = buttonRect.top;
 
-    if (isCompactViewport()) {
-        left = buttonRect.left + (buttonRect.width / 2) - (panelWidth / 2);
-        top = buttonRect.top - panelHeight - gap;
-
-        if (top < 4) {
-            top = buttonRect.bottom + gap;
-        }
-    } else if (left + panelWidth > window.innerWidth - 4) {
+    if (left + panelWidth > window.innerWidth - 4) {
         left = buttonRect.left - panelWidth - gap;
+    }
+
+    if (isCompactViewport()) {
+        top = buttonRect.top - Math.min(24, Math.max(0, panelHeight - buttonRect.height));
     }
 
     left = clamp(left, 4, Math.max(4, window.innerWidth - panelWidth - 4));
