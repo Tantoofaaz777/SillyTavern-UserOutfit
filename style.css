@@ -35,10 +35,10 @@
 
 #user_outfit_panel {
     position: fixed;
-    right: 18px;
-    bottom: 146px;
+    right: 72px;
+    bottom: 92px;
     z-index: 3001;
-    width: min(360px, calc(100vw - 28px));
+    width: min(360px, calc(100vw - 100px));
     display: none;
     flex-direction: column;
     gap: 10px;
@@ -101,8 +101,9 @@
     }
 
     #user_outfit_panel {
-        right: 12px;
-        bottom: 132px;
+        right: 66px;
+        bottom: 78px;
+        width: min(340px, calc(100vw - 86px));
     }
 
     .user_outfit_controls {
